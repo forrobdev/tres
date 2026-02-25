@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainView: View {
     @State private var isPlaying = false
+    @AppStorage("onBoarded") private var onBoarded = false
     
     var body: some View {
         Group {
@@ -16,8 +17,13 @@ struct MainView: View {
                 ContentView(isPlaying: .constant(true))
                     .transition(.move(edge: .trailing))
             } else {
-                MenuView(isPlaying: $isPlaying)
-                    .transition(.move(edge: .leading))
+                if onBoarded {
+                    MenuView(isPlaying: $isPlaying)
+                        .transition(.move(edge: .leading))
+                } else {
+                    OnboardingView()
+                        .transition(.move(edge: .trailing))
+                }
             }
         }
     }

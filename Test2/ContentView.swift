@@ -256,16 +256,16 @@ struct ContentView: View {
         }
     }
     
-    //Gérer la taille d'un numéro sur une carte
-    func rightSize(type: String = "deux") -> CGFloat {
-        if type == "S" || type == "Q" {
-            return 55
-        } else if type == "un" {
-            return 18
-        } else {
-            return 30
-        }
-    }
+//    //Gérer la taille d'un numéro sur une carte
+//    func rightSize(type: String = "deux") -> CGFloat {
+//        if type == "S" || type == "Q" {
+//            return 55
+//        } else if type == "un" {
+//            return 18
+//        } else {
+//            return 30
+//        }
+//    }
     
     //Piocher une carte pour un joueur
     func piocher(botPlaying: Bool = false) {
