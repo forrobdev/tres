@@ -13,8 +13,11 @@ struct MenuView: View {
     @State private var selectedTab = 0
     
     @AppStorage("pseudo") private var pseudo = "Anonyme"
-    @AppStorage("level") private var level = 14
-    @AppStorage("victories") private var victories = 45
+    @AppStorage("level") private var level = 1
+    @AppStorage("victories") private var victories = 0
+    @AppStorage("gamesPlayed") private var gamesPlayed = 0
+    @AppStorage("drawnCards") private var drawnCards = 0
+    @AppStorage("minutesPlayed") private var minutesPlayed = 0
     
     var body: some View {
         
@@ -29,16 +32,10 @@ struct MenuView: View {
                                     .scaledToFill()
                                     .frame(width: 110, height: 190)
                                     .clipShape(RoundedRectangle(cornerRadius: 16))
-                                HStack {
-                                    Image("trois")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 30)
-                                    Image("trois")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 30)
-                                }
+                                Text("\(level)")
+                                    .font(.system(size: 40, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .foregroundColor(.white)
                             }
                             Spacer()
                             VStack(alignment: .leading){
@@ -51,6 +48,10 @@ struct MenuView: View {
                                     .foregroundColor(.white)
                                     .multilineTextAlignment(.leading)
                             }
+                            Spacer()
+                            Spacer()
+                            Spacer()
+                            Spacer()
                             Spacer()
                         }
                         Spacer()
@@ -77,8 +78,101 @@ struct MenuView: View {
                                 .foregroundColor(.white)
                             Spacer()
                         }
-                        HStack{
+                        ScrollView(.horizontal) {
+                            HStack{
+                                VStack {
+                                    Image(systemName: "flag.pattern.checkered.2.crossed")
+                                        .font(.system(size: 23))
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.orange.opacity(0.2))
+                                        .clipShape(Circle())
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                        
+                                    Text(numberToText(value: gamesPlayed))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.orange)
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                    Text(pluriel(index: 1, value: gamesPlayed))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                .frame(width: 140, height: 200)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 40))
+                                VStack {
+                                    Image(systemName: "medal.star.fill")
+                                        .font(.system(size: 25))
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.orange.opacity(0.2))
+                                        .clipShape(Circle())
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                        
+                                    Text(winPercent(wins: victories, gamesPlayed: gamesPlayed))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.orange)
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                    Text("de réussite")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                .frame(width: 140, height: 200)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 40))
+                                VStack {
+                                    Image("cards")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .foregroundStyle(.orange)
+                                        .padding(15)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.orange.opacity(0.2))
+                                        .clipShape(Circle())
+                                        .padding(.bottom, 5)
+                                        
+                                    Text(numberToText(value: drawnCards))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.orange)
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                    Text(pluriel(index: 2, value: drawnCards))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                .frame(width: 140, height: 200)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 40))
+                                VStack {
+                                    Image(systemName: "clock.fill")
+                                        .font(.system(size: 25))
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 60, height: 60)
+                                        .background(Color.orange.opacity(0.2))
+                                        .clipShape(Circle())
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                        
+                                    Text(numberToText(value: minutesPlayed))
+                                        .font(.title2.bold())
+                                        .foregroundColor(.orange)
+                                        .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                    Text(pluriel(index: 3, value: minutesPlayed))
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    
+                                }
+                                .frame(width: 140, height: 200)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 40))
+                            }
+                            .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                         }
+                        .padding(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: -20))
+                        Spacer()
+                        Spacer()
                         Spacer()
                     }
                     .padding(EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20))
@@ -95,12 +189,70 @@ struct MenuView: View {
             
             
             Tab(value: 1) {
-                HStack{
-                    VStack{
+                VStack{
+                    HStack{
                         Text("Jouer")
-                        Text("Robin")
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                        Spacer()
                     }
+                    HStack {
+                        Text("Parties classiques")
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
+                        Spacer()
+                    }
+                    ScrollView(.horizontal) {
+                        HStack{
+                            VStack() {
+                                HStack {
+                                    Image("bot")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 35, height: 35)
+                                        .foregroundStyle(.white)
+                                        .padding(EdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40))
+                                    
+                                    Spacer()
+                                }
+                                .background(
+                                    LinearGradient(
+                                        colors: [.orange, .yellow],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                Text("1v1 contre une IA")
+                                    .font(.title2.bold())
+                                    .foregroundColor(.orange)
+                                    .multilineTextAlignment(.leading)
+                                
+                                Text("Plongez-vous directement dans un 1v1 avec une intelligence artificielle")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.leading)
+                                
+                            }
+                            .background(Color.white)
+                            .frame(width: 270, height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
+                            .onTapGesture {
+                                isPlaying = true
+                            }
+                        }
+                    }
+                    HStack {
+                        Text("Parties déjantées")
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
+                        Spacer()
+                    }
+                    Spacer()
+                    Spacer()
                 }
+                .padding(EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(
                     LinearGradient(
@@ -174,6 +326,47 @@ func backgroundCard(level: Int) -> String {
     }
     
     return newBackground
+}
+
+func pluriel(index: Int, value: Int) -> String {
+    var text: String = ""
+    
+    if (index == 1) {
+        if (value > 1) {
+            text = "parties jouées"
+        } else {
+            text = "partie jouée"
+        }
+    } else if (index == 2) {
+        if (value > 1) {
+            text = "cartes piochées"
+        } else {
+            text = "carte piochée"
+        }
+        
+    } else if (index == 3) {
+        if (value > 1) {
+            text = "minutes jouées"
+        } else {
+            text = "minute jouée"
+        }
+    }
+    
+    return text
+}
+
+func numberToText(value: Int) -> String {
+    var text: String = "\(value)"
+    
+    if (value < 10) {
+        text = "0\(value)"
+    }
+    
+    return text
+}
+
+func winPercent(wins: Int, gamesPlayed: Int) -> String {
+    return "\(wins*100/gamesPlayed)%"
 }
 
 

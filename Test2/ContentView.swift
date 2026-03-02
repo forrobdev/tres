@@ -15,6 +15,15 @@ struct UnoCard: Identifiable {
 
 struct ContentView: View {
     
+    //Pour les stats
+    @AppStorage("victories") private var victories = 0
+    @AppStorage("pseudo") private var pseudo = "Anonyme"
+    @AppStorage("gamesPlayed") private var gamesPlayed = 0
+    @AppStorage("drawnCards") private var drawnCards = 0
+    @AppStorage("minutesPlayed") private var minutesPlayed = 0
+    
+    let startingGameDate: Date = Date()
+    
     @State private var showingWinAlert = false
     @State private var winnerName = ""
     @Binding var isPlaying: Bool
@@ -91,169 +100,195 @@ struct ContentView: View {
     ];
     
     var body: some View {
-        VStack {
-            //Cartes du bot
+        ZStack{
+            if showingWinAlert {
+                VStack(){
+                    Text("\(winnerName) a gagné la partie")
+                        .font(.title)
+                        .foregroundColor(.black)
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            isPlaying = false
+                        }
+                    }) {
+                        Text("Revenir à l'accueil")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                    }
+                    
+                }
+                .frame(width: 260, height: 260)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 40))
+            }
             VStack {
-                ScrollView(.horizontal, showsIndicators: true) {
-                    HStack(spacing: 5) {
-                        ForEach(botDeck) { card in
-                            ZStack {
-                                Image("dos")
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 60, height: 100)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                //Cartes du bot
+                VStack {
+                    ScrollView(.horizontal, showsIndicators: true) {
+                        HStack(spacing: 5) {
+                            ForEach(botDeck) { card in
+                                ZStack {
+                                    Image("dos")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 60, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
                             }
                         }
+                        .padding()
                     }
-                    .padding()
+                    HStack{
+                        Text("\(botDeck.count)")
+                            .font(.headline)
+                        Image("cards")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
+                        Text("Bot")
+                        Spacer()
+                    }
+                    .padding(.leading, 25)
+                    .frame(maxWidth: .infinity)
                 }
-                HStack{
-                    Text("\(botDeck.count)")
-                        .font(.headline)
-                    Image("cards")
+                Spacer()
+                //Carte du milieu et carte piocher
+                HStack {
+                    ZStack {
+                        Image(middleCard.color)
+                            .resizable()
+                            .scaledToFit()
+                            .scaledToFill()
+                            .frame(width: 110, height: 190)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .matchedGeometryEffect(id: middleCard.id, in: cardTransition, isSource: true)
+                        
+                        if middleCard.type != "J" && middleCard.type != "K" {
+                            Image(middleCard.type)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: rightSize(type : middleCard.type))
+                        }
+                    }
+                    .scaleEffect(middleBig ? 0.8 : 1.0)
+                    .animation(.bouncy(duration: 0.3), value: middleBig)
+                    .padding(.bottom, 8)
+                    Image("dos")
                         .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                    Text("Bot")
-                    Spacer()
-                }
-                .padding(.leading, 25)
-                .frame(maxWidth: .infinity)
-            }
-            Spacer()
-            //Carte du milieu et carte piocher
-            HStack {
-                ZStack {
-                    Image(middleCard.color)
-                        .resizable()
-                        .scaledToFit()
                         .scaledToFill()
                         .frame(width: 110, height: 190)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .matchedGeometryEffect(id: middleCard.id, in: cardTransition, isSource: true)
-                    
-                    if middleCard.type != "J" && middleCard.type != "K" {
-                        Image(middleCard.type)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: rightSize(type : middleCard.type))
-                    }
-                }
-                .scaleEffect(middleBig ? 0.8 : 1.0)
-                .animation(.bouncy(duration: 0.3), value: middleBig)
-                .padding(.bottom, 8)
-                Image("dos")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 110, height: 190)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .scaleEffect(piocheBig ? 0.8 : 1.0)
-                    .animation(.bouncy(duration: 0.3), value: piocheBig)
-                    .onTapGesture {
-                        if played {
-                            print("Pas ton tour attends !")
-                        } else {
-                            played = true
-                            piocher(botPlaying: false)
-                            botPlay()
-                        }
-                    }
-            }
-            Spacer()
-            //Cartes de l'user
-            VStack {
-                HStack{
-                    Text("\(userDeck.count)")
-                        .font(.title)
-                    Image("cards")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                    Spacer()
-                    if showColorSelect {
-                        ForEach(colors, id: \.self) { color in
-                            Button(action: {
-                                selectedColor(colorSelected: color)
-                            }) {
-                                Circle()
-                                    .fill(color)
-                                    .frame(width: 40, height: 40)
+                        .scaleEffect(piocheBig ? 0.8 : 1.0)
+                        .animation(.bouncy(duration: 0.3), value: piocheBig)
+                        .onTapGesture {
+                            if played {
+                                print("Pas ton tour attends !")
+                            } else {
+                                played = true
+                                piocher(botPlaying: false)
+                                botPlay()
                             }
                         }
-                    }
-                    Spacer()
                 }
-                .padding(.leading, 25)
-                .frame(maxWidth: .infinity)
-                
-                ScrollView(.horizontal, showsIndicators: true) {
-                    HStack(spacing: 10) {
-                        ForEach(userDeck) { card in
-                            ZStack {
-                                Image(card.color)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 110, height: 190)
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                                if card.type != "J" && card.type != "K" {
-                                    Image(card.type)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: rightSize(type : card.type))
+                Spacer()
+                //Cartes de l'user
+                VStack {
+                    HStack{
+                        Text("\(userDeck.count)")
+                            .font(.title)
+                        Image("cards")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30, height: 30)
+                        Spacer()
+                        if showColorSelect {
+                            ForEach(colors, id: \.self) { color in
+                                Button(action: {
+                                    selectedColor(colorSelected: color)
+                                }) {
+                                    Circle()
+                                        .fill(color)
+                                        .frame(width: 40, height: 40)
                                 }
                             }
-                            .matchedGeometryEffect(id: card.id, in: cardTransition, isSource: true)
-                            .onTapGesture {
-                                if played {
-                                    print("Pas ton tour attends !")
-                                } else {
-                                    if isCardValid(type: card.type, color: card.color) {
-                                        
-                                        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                            middleCard = card
-                                            userDeck.removeAll { $0.id == card.id }
-                                            played = true
-                                        }
-                                        
-                                        if !isSpecialCard(type: card.type, color: card.color, player: "user") {
-                                            botPlay()
-                                            isWinning(cards: userDeck, player: "user")
-                                        }
+                        }
+                        Spacer()
+                    }
+                    .padding(.leading, 25)
+                    .frame(maxWidth: .infinity)
+                    
+                    ScrollView(.horizontal, showsIndicators: true) {
+                        HStack(spacing: 10) {
+                            ForEach(userDeck) { card in
+                                ZStack {
+                                    Image(card.color)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 110, height: 190)
+                                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    if card.type != "J" && card.type != "K" {
+                                        Image(card.type)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: rightSize(type : card.type))
+                                    }
+                                }
+                                .matchedGeometryEffect(id: card.id, in: cardTransition, isSource: true)
+                                .onTapGesture {
+                                    if played {
+                                        print("Pas ton tour attends !")
                                     } else {
-                                        print("Pas valide essaye une autre")
+                                        if isCardValid(type: card.type, color: card.color) {
+                                            
+                                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                                middleCard = card
+                                                userDeck.removeAll { $0.id == card.id }
+                                                played = true
+                                            }
+                                            
+                                            if !isSpecialCard(type: card.type, color: card.color, player: "user") {
+                                                botPlay()
+                                                isWinning(cards: userDeck, player: "user")
+                                            }
+                                        } else {
+                                            print("Pas valide essaye une autre")
+                                        }
                                     }
                                 }
                             }
                         }
+                        .padding()
                     }
-                    .padding()
+                    .scrollClipDisabled()
                 }
-                .scrollClipDisabled()
             }
-        }
-        .background(
-            LinearGradient(
-                colors: played ? [.red, .black] : [.black, .blue],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            .background(
+                LinearGradient(
+                    colors: played ? [.red, .black] : [.black, .blue],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
-        )
-        .onAppear() {
-            regenerateDeck(botPlaying: true)
-            regenerateDeck(botPlaying: false)
+            .onAppear() {
+                regenerateDeck(botPlaying: true)
+                regenerateDeck(botPlaying: false)
+            }
         }
         
-        .alert("\(winnerName) a gagné !", isPresented: $showingWinAlert) {
-            Button("Rejouer") {
-                resetGame()
-            }
-            Button("Retour au menu") {
-                isPlaying = false
-            }
-        } message: {
-            Text("Quelle partie endiablée !")
-        }
+//        .alert("\(winnerName) a gagné !", isPresented: $showingWinAlert) {
+//            Button("Rejouer") {
+//                resetGame()
+//            }
+//            Button("Retour au menu") {
+//                isPlaying = false
+//            }
+//        } message: {
+//            Text("Quelle partie endiablée !")
+//        }
     }
     
 //    //Gérer la taille d'un numéro sur une carte
@@ -283,6 +318,7 @@ struct ContentView: View {
                 botDeck.append(UnoCard(color: newColor, type: newType))
                 played = false
             } else {
+                drawnCards += 1
                 userDeck.append(UnoCard(color: newColor, type: newType))
             }
         } else {
@@ -346,8 +382,25 @@ struct ContentView: View {
     
     //Affiche le winner
     func win(winner: String = "Bot") {
+        gamesPlayed += 1
+        
+        if (winner == pseudo) {
+            victories += 1
+        }
+        minutesPlayed += calcTime()
+        
         winnerName = winner
         showingWinAlert = true
+    }
+    
+    //Calculer les minutes jouées
+    func calcTime() -> Int {
+        let endingGameDate = Date()
+        let seconds = endingGameDate.timeIntervalSince(startingGameDate)
+        let minutes = Int(seconds / 60)
+        
+        print("La partie a duré \(minutes) minutes")
+        return minutes
     }
     
     //Animer quand on tire une carte dans la pioche
