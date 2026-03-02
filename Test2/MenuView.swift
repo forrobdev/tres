@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct MenuView: View {
-
+    
+    @Binding var gamemode: Int = 0
     @Binding var isPlaying: Bool
     @State private var selectedTab = 0
     
+    @AppStorage("onBoarded") private var onBoarded = false
     @AppStorage("pseudo") private var pseudo = "Anonyme"
     @AppStorage("level") private var level = 1
     @AppStorage("victories") private var victories = 0
@@ -187,7 +189,7 @@ struct MenuView: View {
             
             
             Tab(value: 1) {
-                VStack{
+                VStack(spacing: 20){
                     HStack{
                         Text("Jouer")
                             .font(.system(size: 40, weight: .bold))
@@ -202,18 +204,19 @@ struct MenuView: View {
                         Spacer()
                     }
                     ScrollView(.horizontal) {
-                        HStack{
-                            VStack() {
-                                HStack {
-                                    Image("bot")
-                                        .renderingMode(.template)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 35, height: 35)
-                                        .foregroundStyle(.white)
-                                        .padding(EdgeInsets(top: 40, leading: 40, bottom: 40, trailing: 40))
-                                    
-                                    Spacer()
+                        HStack(spacing: 20){
+                            VStack(spacing: 0) {
+                                VStack{
+                                    HStack {
+                                        Image("bot")
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .foregroundStyle(.white)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
                                 }
                                 .background(
                                     LinearGradient(
@@ -222,25 +225,70 @@ struct MenuView: View {
                                         endPoint: .trailing
                                     )
                                 )
-                                Text("1v1 contre une IA")
-                                    .font(.title2.bold())
-                                    .foregroundColor(.orange)
-                                    .multilineTextAlignment(.leading)
-                                
-                                Text("Plongez-vous directement dans un 1v1 avec une intelligence artificielle")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .multilineTextAlignment(.leading)
-                                
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("1v1 contre une IA")
+                                        .font(.title2.bold())
+                                        .foregroundColor(.orange)
+                                        .padding(EdgeInsets(top: -5, leading: 0, bottom: 0, trailing: 0))
+                                    Text("Plongez-vous dans un 1v1 classique contre une intelligence artificielle")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                .padding(20)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                .background(Color.white)
                             }
-                            .background(Color.white)
-                            .frame(width: 270, height: 200)
+                            .frame(width: 290, height: 200)
                             .clipShape(RoundedRectangle(cornerRadius: 40))
                             .onTapGesture {
+                                gamemode = 0
+                                isPlaying = true
+                            }
+                            VStack(spacing: 0) {
+                                VStack{
+                                    HStack {
+                                        Image("cards")
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .frame(width: 45, height: 45)
+                                            .foregroundStyle(.white)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+                                }
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(red: 76/255, green: 175/255, blue: 80/255), Color(red: 139/255, green: 194/255, blue: 74/255)],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("Main Double")
+                                        .font(.title2.bold())
+                                        .foregroundColor(Color(red: 76/255, green: 175/255, blue: 80/255))
+                                        .padding(EdgeInsets(top: -5, leading: 0, bottom: 0, trailing: 0))
+                                    Text("Commencez la partie avec 14 cartes, toujours contre une IA")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                .padding(20)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                .background(Color.white)
+                            }
+                            .frame(width: 290, height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
+                            .onTapGesture {
+                                gamemode = 1
                                 isPlaying = true
                             }
                         }
+                        .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
                     }
+                    .padding(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: -20))
                     HStack {
                         Text("Parties déjantées")
                             .font(.title3.bold())
@@ -264,12 +312,37 @@ struct MenuView: View {
                 Label("Jouer", systemImage: "flag.pattern.checkered.2.crossed")
             }
             Tab(value: 2) {
-                HStack{
-                    VStack{
+                VStack {
+                    HStack{
                         Text("Profil")
-                        Text("Robin")
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.leading)
+                        Spacer()
                     }
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            pseudo = ""
+                            level = 1
+                            victories = 0
+                            minutesPlayed = 0
+                            gamesPlayed = 0
+                            drawnCards = 0
+                            onBoarded = false
+                        }
+                    }) {
+                        Text("Supprimer les données")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .frame(width: 350, height: 60)
+                            .background(Color.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                    }
+                    Spacer()
                 }
+                .padding(EdgeInsets(top: 20, leading: 20, bottom: 0, trailing: 20))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(
                     LinearGradient(
@@ -326,45 +399,12 @@ func backgroundCard(level: Int) -> String {
     return newBackground
 }
 
-//func pluriel(index: Int, value: Int) -> String {
-//    var text: String = ""
-//    
-//    if (index == 1) {
-//        if (value > 1) {
-//            text = "parties jouées"
-//        } else {
-//            text = "partie jouée"
-//        }
-//    } else if (index == 2) {
-//        if (value > 1) {
-//            text = "cartes piochées"
-//        } else {
-//            text = "carte piochée"
-//        }
-//        
-//    } else if (index == 3) {
-//        if (value > 1) {
-//            text = "minutes jouées"
-//        } else {
-//            text = "minute jouée"
-//        }
-//    }
-//    
-//    return text
-//}
-
-//func numberToText(value: Int) -> String {
-//    var text: String = "\(value)"
-//    
-//    if (value < 10) {
-//        text = "0\(value)"
-//    }
-//    
-//    return text
-//}
-
 func winPercent(wins: Int, gamesPlayed: Int) -> String {
-    return "\(wins*100/gamesPlayed)%"
+    if gamesPlayed == 0 {
+        return "0%"
+    } else {
+        return "\(wins*100/gamesPlayed)%"
+    }
 }
 
 

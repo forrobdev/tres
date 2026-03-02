@@ -28,7 +28,9 @@ struct ContentView: View {
     
     @State private var showingWinAlert = false
     @State private var winnerName = ""
+    
     @Binding var isPlaying: Bool
+    @Binding var gamemode: Int
     
     @Namespace private var cardTransition
     @State private var userDeck: [UnoCard] = []
@@ -251,7 +253,7 @@ struct ContentView: View {
                     endPoint: .bottomTrailing
                 )
             )
-            if !showingWinAlert {
+            if showingWinAlert {
                 VStack(){
                     HStack{
                         VStack(alignment: .leading){
@@ -259,7 +261,7 @@ struct ContentView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
-                            Text("Robin")
+                            Text(winnerName)
                                 .font(.system(size: 40, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.leading)
@@ -392,14 +394,20 @@ struct ContentView: View {
     
     //Regénérer le deck de cartes d'un joueur
     func regenerateDeck(botPlaying: Bool = false) {
+        var drawNumber: Int = 7
+        
+        if (gamemode == 1){
+            drawNumber = 14
+        }
+        
         if botPlaying {
             botDeck.removeAll()
-            for _ in 1...7 {
+            for _ in 1...drawNumber {
                 piocher(botPlaying: true)
             }
         } else {
             userDeck.removeAll()
-            for _ in 1...7 {
+            for _ in 1...drawNumber {
                 piocher(botPlaying: false)
             }
         }

@@ -9,13 +9,13 @@ import SwiftUI
 
 struct MainView: View {
     
-    @State private var isPlaying = true
+    @State private var isPlaying = false
     @AppStorage("onBoarded") private var onBoarded = false
     
     var body: some View {
         Group {
             if isPlaying {
-                ContentView(isPlaying: .constant(true))
+                ContentView(isPlaying: $isPlaying)
                     .transition(.move(edge: .trailing))
             } else {
                 if onBoarded {
