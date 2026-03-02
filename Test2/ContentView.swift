@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct UnoCard: Identifiable {
-    let id = UUID() //Génère un ID unique
-    let color: String
-    let type: String
-}
+//struct UnoCard: Identifiable {
+//    let id = UUID()
+//    let color: String
+//    let type: String
+//}
 
 struct ContentView: View {
     
@@ -33,79 +33,103 @@ struct ContentView: View {
     @Binding var gamemode: Int
     
     @Namespace private var cardTransition
-    @State private var userDeck: [UnoCard] = []
-    @State private var botDeck: [UnoCard] = []
-    @State private var middleCard: UnoCard = UnoCard(color: "rouge", type: "zero")
+    @State private var userDeck: [card] = []
+    @State private var botDeck: [card] = []
+    @State private var middleCard: card = card(type: "rouge", color: "zero")
     @State private var played: Bool = false
     @State private var showColorSelect: Bool = false
     @State private var piocheBig: Bool = false
     @State private var middleBig: Bool = false
     let colors: [Color] = [.red, .blue, .yellow, .green]
-    @State private var unoCards: Array = [
-        //Cartes bleues Q = Sens interdit S = +2
-        ["bleu", "zero"],
-        ["bleu", "un"], ["bleu", "un"],
-        ["bleu", "deux"], ["bleu", "deux"],
-        ["bleu", "trois"], ["bleu", "trois"],
-        ["bleu", "quatre"], ["bleu", "quatre"],
-        ["bleu", "cinq"], ["bleu", "cinq"],
-        ["bleu", "six"], ["bleu", "six"],
-        ["bleu", "sept"], ["bleu", "sept"],
-        ["bleu", "huit"], ["bleu", "huit"],
-        ["bleu", "neuf"], ["bleu", "neuf"],
-        ["bleu", "Q"], ["bleu", "Q"],
-        ["bleu", "S"], ["bleu", "S"],
+    
+    class card: Identifiable {
         
-        //Cartes rouges
-        ["rouge", "zero"],
-        ["rouge", "un"], ["rouge", "un"],
-        ["rouge", "deux"], ["rouge", "deux"],
-        ["rouge", "trois"], ["rouge", "trois"],
-        ["rouge", "quatre"], ["rouge", "quatre"],
-        ["rouge", "cinq"], ["rouge", "cinq"],
-        ["rouge", "six"], ["rouge", "six"],
-        ["rouge", "sept"], ["rouge", "sept"],
-        ["rouge", "huit"], ["rouge", "huit"],
-        ["rouge", "neuf"], ["rouge", "neuf"],
-        ["rouge", "Q"], ["rouge", "Q"],
-        ["rouge", "S"], ["rouge", "S"],
+        var type: String
+        var color: String
+        var id = UUID()
         
-        //Cartes jaunes
-        ["jaune", "zero"],
-        ["jaune", "un"], ["jaune", "un"],
-        ["jaune", "deux"], ["jaune", "deux"],
-        ["jaune", "trois"], ["jaune", "trois"],
-        ["jaune", "quatre"], ["jaune", "quatre"],
-        ["jaune", "cinq"], ["jaune", "cinq"],
-        ["jaune", "six"], ["jaune", "six"],
-        ["jaune", "sept"], ["jaune", "sept"],
-        ["jaune", "huit"], ["jaune", "huit"],
-        ["jaune", "neuf"], ["jaune", "neuf"],
-        ["jaune", "Q"], ["jaune", "Q"],
-        ["jaune", "S"], ["jaune", "S"],
+        init(type:String, color:String) {
+            self.type = type
+            self.color = color
+        }
+    }
+    
+    @State private var unoCards: [card] = [
+        // Cartes bleues Q = Sens interdit S = +2
+        card(type: "zero", color: "bleu"),
+        card(type: "un", color: "bleu"), card(type: "un", color: "bleu"),
+        card(type: "deux", color: "bleu"), card(type: "deux", color: "bleu"),
+        card(type: "trois", color: "bleu"), card(type: "trois", color: "bleu"),
+        card(type: "quatre", color: "bleu"), card(type: "quatre", color: "bleu"),
+        card(type: "cinq", color: "bleu"), card(type: "cinq", color: "bleu"),
+        card(type: "six", color: "bleu"), card(type: "six", color: "bleu"),
+        card(type: "sept", color: "bleu"), card(type: "sept", color: "bleu"),
+        card(type: "huit", color: "bleu"), card(type: "huit", color: "bleu"),
+        card(type: "neuf", color: "bleu"), card(type: "neuf", color: "bleu"),
+        card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"),
+        card(type: "S", color: "bleu"), card(type: "S", color: "bleu"),
         
-        //Cartes vertes
-        ["vert", "zero"],
-        ["vert", "un"], ["vert", "un"],
-        ["vert", "deux"], ["vert", "deux"],
-        ["vert", "trois"], ["vert", "trois"],
-        ["vert", "quatre"], ["vert", "quatre"],
-        ["vert", "cinq"], ["vert", "cinq"],
-        ["vert", "six"], ["vert", "six"],
-        ["vert", "sept"], ["vert", "sept"],
-        ["vert", "huit"], ["vert", "huit"],
-        ["vert", "neuf"], ["vert", "neuf"],
-        ["vert", "Q"], ["vert", "Q"],
-        ["vert", "S"], ["vert", "S"],
+        // Cartes rouges
+        card(type: "zero", color: "rouge"),
+        card(type: "un", color: "rouge"), card(type: "un", color: "rouge"),
+        card(type: "deux", color: "rouge"), card(type: "deux", color: "rouge"),
+        card(type: "trois", color: "rouge"), card(type: "trois", color: "rouge"),
+        card(type: "quatre", color: "rouge"), card(type: "quatre", color: "rouge"),
+        card(type: "cinq", color: "rouge"), card(type: "cinq", color: "rouge"),
+        card(type: "six", color: "rouge"), card(type: "six", color: "rouge"),
+        card(type: "sept", color: "rouge"), card(type: "sept", color: "rouge"),
+        card(type: "huit", color: "rouge"), card(type: "huit", color: "rouge"),
+        card(type: "neuf", color: "rouge"), card(type: "neuf", color: "rouge"),
+        card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"),
+        card(type: "S", color: "rouge"), card(type: "S", color: "rouge"),
         
-        //Cartes noires J = +4 et K = Changement de couleur
-        ["noir", "J"], ["noir", "J"], ["noir", "J"], ["noir", "J"],
-        ["noir2", "K"], ["noir2", "K"], ["noir2", "K"], ["noir2", "K"]
-    ];
+        // Cartes jaunes
+        card(type: "zero", color: "jaune"),
+        card(type: "un", color: "jaune"), card(type: "un", color: "jaune"),
+        card(type: "deux", color: "jaune"), card(type: "deux", color: "jaune"),
+        card(type: "trois", color: "jaune"), card(type: "trois", color: "jaune"),
+        card(type: "quatre", color: "jaune"), card(type: "quatre", color: "jaune"),
+        card(type: "cinq", color: "jaune"), card(type: "cinq", color: "jaune"),
+        card(type: "six", color: "jaune"), card(type: "six", color: "jaune"),
+        card(type: "sept", color: "jaune"), card(type: "sept", color: "jaune"),
+        card(type: "huit", color: "jaune"), card(type: "huit", color: "jaune"),
+        card(type: "neuf", color: "jaune"), card(type: "neuf", color: "jaune"),
+        card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"),
+        card(type: "S", color: "jaune"), card(type: "S", color: "jaune"),
+        
+        // Cartes vertes
+        card(type: "zero", color: "vert"),
+        card(type: "un", color: "vert"), card(type: "un", color: "vert"),
+        card(type: "deux", color: "vert"), card(type: "deux", color: "vert"),
+        card(type: "trois", color: "vert"), card(type: "trois", color: "vert"),
+        card(type: "quatre", color: "vert"), card(type: "quatre", color: "vert"),
+        card(type: "cinq", color: "vert"), card(type: "cinq", color: "vert"),
+        card(type: "six", color: "vert"), card(type: "six", color: "vert"),
+        card(type: "sept", color: "vert"), card(type: "sept", color: "vert"),
+        card(type: "huit", color: "vert"), card(type: "huit", color: "vert"),
+        card(type: "neuf", color: "vert"), card(type: "neuf", color: "vert"),
+        card(type: "Q", color: "vert"), card(type: "Q", color: "vert"),
+        card(type: "S", color: "vert"), card(type: "S", color: "vert"),
+        
+        // Cartes noires J = +4 et K = Changement de couleur
+        card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+        card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2")
+    ]
     
     var body: some View {
         ZStack{
             VStack {
+                HStack{
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 23))
+                        .foregroundStyle(.white)
+                        .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0))
+                        .onTapGesture {
+                            isPlaying = false
+                        }
+
+                    Spacer()
+                }
                 //Cartes du bot
                 VStack {
                     ScrollView(.horizontal, showsIndicators: true) {
@@ -373,22 +397,150 @@ struct ContentView: View {
         
         if let randomIndex = unoCards.indices.randomElement() {
             
-            //On supprime la carte piochée
+            //Supprime la carte piochée
             let newCard = unoCards.remove(at: randomIndex)
-            
-            let newColor = newCard[0]
-            let newType = newCard[1]
             
             animPiocher()
             if botPlaying {
-                botDeck.append(UnoCard(color: newColor, type: newType))
+                botDeck.append(newCard)
                 played = false
             } else {
                 miniDrawnCards = miniDrawnCards + 1
-                userDeck.append(UnoCard(color: newColor, type: newType))
+                userDeck.append(newCard)
             }
         } else {
-            //Le paquet est vide en générer un nouveau
+            if (gamemode == 3) {
+                unoCards = [
+                // Cartes bleues
+                card(type: "zero", color: "bleu"),
+                card(type: "un", color: "bleu"), card(type: "un", color: "bleu"),
+                card(type: "deux", color: "bleu"), card(type: "deux", color: "bleu"),
+                card(type: "trois", color: "bleu"), card(type: "trois", color: "bleu"),
+                card(type: "quatre", color: "bleu"), card(type: "quatre", color: "bleu"),
+                card(type: "cinq", color: "bleu"), card(type: "cinq", color: "bleu"),
+                card(type: "six", color: "bleu"), card(type: "six", color: "bleu"),
+                card(type: "sept", color: "bleu"), card(type: "sept", color: "bleu"),
+                card(type: "huit", color: "bleu"), card(type: "huit", color: "bleu"),
+                card(type: "neuf", color: "bleu"), card(type: "neuf", color: "bleu"),
+                // Cartes spéciales bleues doublées (4 de chaque au lieu de 2)
+                card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"),
+                card(type: "S", color: "bleu"), card(type: "S", color: "bleu"), card(type: "S", color: "bleu"), card(type: "S", color: "bleu"),
+                
+                // Cartes rouges
+                card(type: "zero", color: "rouge"),
+                card(type: "un", color: "rouge"), card(type: "un", color: "rouge"),
+                card(type: "deux", color: "rouge"), card(type: "deux", color: "rouge"),
+                card(type: "trois", color: "rouge"), card(type: "trois", color: "rouge"),
+                card(type: "quatre", color: "rouge"), card(type: "quatre", color: "rouge"),
+                card(type: "cinq", color: "rouge"), card(type: "cinq", color: "rouge"),
+                card(type: "six", color: "rouge"), card(type: "six", color: "rouge"),
+                card(type: "sept", color: "rouge"), card(type: "sept", color: "rouge"),
+                card(type: "huit", color: "rouge"), card(type: "huit", color: "rouge"),
+                card(type: "neuf", color: "rouge"), card(type: "neuf", color: "rouge"),
+                // Cartes spéciales rouges doublées
+                card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"),
+                card(type: "S", color: "rouge"), card(type: "S", color: "rouge"), card(type: "S", color: "rouge"), card(type: "S", color: "rouge"),
+                
+                // Cartes jaunes
+                card(type: "zero", color: "jaune"),
+                card(type: "un", color: "jaune"), card(type: "un", color: "jaune"),
+                card(type: "deux", color: "jaune"), card(type: "deux", color: "jaune"),
+                card(type: "trois", color: "jaune"), card(type: "trois", color: "jaune"),
+                card(type: "quatre", color: "jaune"), card(type: "quatre", color: "jaune"),
+                card(type: "cinq", color: "jaune"), card(type: "cinq", color: "jaune"),
+                card(type: "six", color: "jaune"), card(type: "six", color: "jaune"),
+                card(type: "sept", color: "jaune"), card(type: "sept", color: "jaune"),
+                card(type: "huit", color: "jaune"), card(type: "huit", color: "jaune"),
+                card(type: "neuf", color: "jaune"), card(type: "neuf", color: "jaune"),
+                // Cartes spéciales jaunes doublées
+                card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"),
+                card(type: "S", color: "jaune"), card(type: "S", color: "jaune"), card(type: "S", color: "jaune"), card(type: "S", color: "jaune"),
+                
+                // Cartes vertes
+                card(type: "zero", color: "vert"),
+                card(type: "un", color: "vert"), card(type: "un", color: "vert"),
+                card(type: "deux", color: "vert"), card(type: "deux", color: "vert"),
+                card(type: "trois", color: "vert"), card(type: "trois", color: "vert"),
+                card(type: "quatre", color: "vert"), card(type: "quatre", color: "vert"),
+                card(type: "cinq", color: "vert"), card(type: "cinq", color: "vert"),
+                card(type: "six", color: "vert"), card(type: "six", color: "vert"),
+                card(type: "sept", color: "vert"), card(type: "sept", color: "vert"),
+                card(type: "huit", color: "vert"), card(type: "huit", color: "vert"),
+                card(type: "neuf", color: "vert"), card(type: "neuf", color: "vert"),
+                // Cartes spéciales vertes doublées
+                card(type: "Q", color: "vert"), card(type: "Q", color: "vert"), card(type: "Q", color: "vert"), card(type: "Q", color: "vert"),
+                card(type: "S", color: "vert"), card(type: "S", color: "vert"), card(type: "S", color: "vert"), card(type: "S", color: "vert"),
+                
+                // Cartes noires doublées (8 de chaque au lieu de 4)
+                card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+                card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+                
+                card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"),
+                card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2")
+            ]
+            } else {
+                unoCards = [
+                    // Cartes bleues Q = Sens interdit S = +2
+                    card(type: "zero", color: "bleu"),
+                    card(type: "un", color: "bleu"), card(type: "un", color: "bleu"),
+                    card(type: "deux", color: "bleu"), card(type: "deux", color: "bleu"),
+                    card(type: "trois", color: "bleu"), card(type: "trois", color: "bleu"),
+                    card(type: "quatre", color: "bleu"), card(type: "quatre", color: "bleu"),
+                    card(type: "cinq", color: "bleu"), card(type: "cinq", color: "bleu"),
+                    card(type: "six", color: "bleu"), card(type: "six", color: "bleu"),
+                    card(type: "sept", color: "bleu"), card(type: "sept", color: "bleu"),
+                    card(type: "huit", color: "bleu"), card(type: "huit", color: "bleu"),
+                    card(type: "neuf", color: "bleu"), card(type: "neuf", color: "bleu"),
+                    card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"),
+                    card(type: "S", color: "bleu"), card(type: "S", color: "bleu"),
+                    
+                    // Cartes rouges
+                    card(type: "zero", color: "rouge"),
+                    card(type: "un", color: "rouge"), card(type: "un", color: "rouge"),
+                    card(type: "deux", color: "rouge"), card(type: "deux", color: "rouge"),
+                    card(type: "trois", color: "rouge"), card(type: "trois", color: "rouge"),
+                    card(type: "quatre", color: "rouge"), card(type: "quatre", color: "rouge"),
+                    card(type: "cinq", color: "rouge"), card(type: "cinq", color: "rouge"),
+                    card(type: "six", color: "rouge"), card(type: "six", color: "rouge"),
+                    card(type: "sept", color: "rouge"), card(type: "sept", color: "rouge"),
+                    card(type: "huit", color: "rouge"), card(type: "huit", color: "rouge"),
+                    card(type: "neuf", color: "rouge"), card(type: "neuf", color: "rouge"),
+                    card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"),
+                    card(type: "S", color: "rouge"), card(type: "S", color: "rouge"),
+                    
+                    // Cartes jaunes
+                    card(type: "zero", color: "jaune"),
+                    card(type: "un", color: "jaune"), card(type: "un", color: "jaune"),
+                    card(type: "deux", color: "jaune"), card(type: "deux", color: "jaune"),
+                    card(type: "trois", color: "jaune"), card(type: "trois", color: "jaune"),
+                    card(type: "quatre", color: "jaune"), card(type: "quatre", color: "jaune"),
+                    card(type: "cinq", color: "jaune"), card(type: "cinq", color: "jaune"),
+                    card(type: "six", color: "jaune"), card(type: "six", color: "jaune"),
+                    card(type: "sept", color: "jaune"), card(type: "sept", color: "jaune"),
+                    card(type: "huit", color: "jaune"), card(type: "huit", color: "jaune"),
+                    card(type: "neuf", color: "jaune"), card(type: "neuf", color: "jaune"),
+                    card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"),
+                    card(type: "S", color: "jaune"), card(type: "S", color: "jaune"),
+                    
+                    // Cartes vertes
+                    card(type: "zero", color: "vert"),
+                    card(type: "un", color: "vert"), card(type: "un", color: "vert"),
+                    card(type: "deux", color: "vert"), card(type: "deux", color: "vert"),
+                    card(type: "trois", color: "vert"), card(type: "trois", color: "vert"),
+                    card(type: "quatre", color: "vert"), card(type: "quatre", color: "vert"),
+                    card(type: "cinq", color: "vert"), card(type: "cinq", color: "vert"),
+                    card(type: "six", color: "vert"), card(type: "six", color: "vert"),
+                    card(type: "sept", color: "vert"), card(type: "sept", color: "vert"),
+                    card(type: "huit", color: "vert"), card(type: "huit", color: "vert"),
+                    card(type: "neuf", color: "vert"), card(type: "neuf", color: "vert"),
+                    card(type: "Q", color: "vert"), card(type: "Q", color: "vert"),
+                    card(type: "S", color: "vert"), card(type: "S", color: "vert"),
+                    
+                    // Cartes noires J = +4 et K = Changement de couleur
+                    card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+                    card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2")
+                ]
+            }
         }
     }
     
@@ -398,6 +550,8 @@ struct ContentView: View {
         
         if (gamemode == 1){
             drawNumber = 14
+        } else if (gamemode == 2) {
+            drawNumber = 4
         }
         
         if botPlaying {
@@ -419,7 +573,7 @@ struct ContentView: View {
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(3))
                 
-                var validCards: [UnoCard] = []
+                var validCards: [card] = []
                 for card in botDeck {
                     
                     if isCardValid(type: card.type, color: card.color) {
@@ -447,7 +601,7 @@ struct ContentView: View {
     }
     
     //Quelqu'un gagne ?
-    func isWinning(cards: [UnoCard], player: String = "bot") {
+    func isWinning(cards: [card], player: String = "bot") {
         if cards.isEmpty {
             win(winner: player)
         }
@@ -570,7 +724,7 @@ struct ContentView: View {
         } else if colorSelected == .red {
             newColor = "rouge"
         }
-        middleCard = UnoCard(color: newColor, type: middleCard.type)
+        middleCard = card(type: middleCard.type, color: newColor)
         botPlay()
     }
     
@@ -580,7 +734,7 @@ struct ContentView: View {
             let newCard = botDeck.randomElement()
             let newColor = newCard!.color
             isWinning(cards: userDeck, player: "bot")
-            middleCard = UnoCard(color: newColor, type: middleCard.type)
+            middleCard = card(type: middleCard.type, color: newColor)
             played = false;
         }
     }
@@ -597,5 +751,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(isPlaying: .constant(true))
+    ContentView(isPlaying: .constant(true), gamemode: .constant(0))
 }

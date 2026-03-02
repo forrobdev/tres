@@ -10,16 +10,18 @@ import SwiftUI
 struct MainView: View {
     
     @State private var isPlaying = false
+    @State private var gamemode = 0
+    
     @AppStorage("onBoarded") private var onBoarded = false
     
     var body: some View {
         Group {
             if isPlaying {
-                ContentView(isPlaying: $isPlaying)
+                ContentView(isPlaying: $isPlaying, gamemode: $gamemode)
                     .transition(.move(edge: .trailing))
             } else {
                 if onBoarded {
-                    MenuView(isPlaying: $isPlaying)
+                    MenuView(gamemode: $gamemode, isPlaying: $isPlaying)
                         .transition(.move(edge: .leading))
                 } else {
                     OnboardingView()

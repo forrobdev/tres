@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MenuView: View {
     
-    @Binding var gamemode: Int = 0
+    @Binding var gamemode: Int
     @Binding var isPlaying: Bool
     @State private var selectedTab = 0
     
@@ -295,6 +295,88 @@ struct MenuView: View {
                             .foregroundColor(.white)
                         Spacer()
                     }
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 20){
+                            VStack(spacing: 0) {
+                                VStack{
+                                    HStack {
+                                        Image(systemName: "hare.fill")
+                                            .font(.system(size: 35))
+                                            .foregroundStyle(.white)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+                                }
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.red, Color(red: 227/255, green: 135/255, blue: 93/255)],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("Partie rapide")
+                                        .font(.title2.bold())
+                                        .foregroundColor(.red)
+                                        .padding(EdgeInsets(top: -5, leading: 0, bottom: 0, trailing: 0))
+                                    Text("Commencez la partie avec seulement 4 cartes")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                .padding(20)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                .background(Color.white)
+                            }
+                            .frame(width: 290, height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
+                            .onTapGesture {
+                                gamemode = 2
+                                isPlaying = true
+                            }
+                            VStack(spacing: 0) {
+                                VStack{
+                                    HStack {
+                                        Image(systemName: "bolt.fill")
+                                            .font(.system(size: 35))
+                                            .foregroundStyle(.white)
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(EdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30))
+                                }
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(red: 122/255, green: 69/255, blue: 214/255), Color(red: 225/255, green: 93/255, blue: 227/255)],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("Bonus Boost")
+                                        .font(.title2.bold())
+                                        .foregroundColor(Color(red: 122/255, green: 69/255, blue: 214/255))
+                                        .padding(EdgeInsets(top: -5, leading: 0, bottom: 0, trailing: 0))
+                                    Text("Toutes les cartes spéciales ont 2x plus de chance d'être piochées !")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                .padding(20)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                .background(Color.white)
+                            }
+                            .frame(width: 290, height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 40))
+                            .onTapGesture {
+                                gamemode = 3
+                                isPlaying = true
+                            }
+                        }
+                        .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    }
+                    .padding(EdgeInsets(top: 0, leading: -20, bottom: 0, trailing: -20))
                     Spacer()
                     Spacer()
                 }
@@ -333,6 +415,20 @@ struct MenuView: View {
                         }
                     }) {
                         Text("Supprimer les données")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .frame(width: 350, height: 60)
+                            .background(Color.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                    }
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            pseudo = ""
+                            onBoarded = false
+                        }
+                    }) {
+                        Text("Modifier le pseudo")
                             .font(.title2.bold())
                             .foregroundColor(.white)
                             .frame(width: 350, height: 60)
@@ -410,5 +506,5 @@ func winPercent(wins: Int, gamesPlayed: Int) -> String {
 
 #Preview {
     // Le .constant(false) sert juste pour que la prévisualisation fonctionne
-    MenuView(isPlaying: .constant(false))
+    MenuView(gamemode: .constant(0), isPlaying: .constant(true))
 }
