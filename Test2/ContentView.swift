@@ -22,6 +22,8 @@ struct ContentView: View {
     @AppStorage("drawnCards") private var drawnCards = 0
     @AppStorage("minutesPlayed") private var minutesPlayed = 0
     
+    @State private var miniDrawnCards: Int = 0
+    
     let startingGameDate: Date = Date()
     
     @State private var showingWinAlert = false
@@ -101,30 +103,6 @@ struct ContentView: View {
     
     var body: some View {
         ZStack{
-            if showingWinAlert {
-                VStack(){
-                    Text("\(winnerName) a gagné la partie")
-                        .font(.title)
-                        .foregroundColor(.black)
-                    Button(action: {
-                        withAnimation(.spring()) {
-                            isPlaying = false
-                        }
-                    }) {
-                        Text("Revenir à l'accueil")
-                            .font(.title2.bold())
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.orange)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .shadow(radius: 10)
-                    }
-                    
-                }
-                .frame(width: 260, height: 260)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 40))
-            }
             VStack {
                 //Cartes du bot
                 VStack {
@@ -252,7 +230,7 @@ struct ContentView: View {
                                             
                                             if !isSpecialCard(type: card.type, color: card.color, player: "user") {
                                                 botPlay()
-                                                isWinning(cards: userDeck, player: "user")
+                                                isWinning(cards: userDeck, player: pseudo)
                                             }
                                         } else {
                                             print("Pas valide essaye une autre")
@@ -273,10 +251,96 @@ struct ContentView: View {
                     endPoint: .bottomTrailing
                 )
             )
-            .onAppear() {
-                regenerateDeck(botPlaying: true)
-                regenerateDeck(botPlaying: false)
+            if !showingWinAlert {
+                VStack(){
+                    HStack{
+                        VStack(alignment: .leading){
+                            Text("Gagnant de la partie")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
+                            Text("Robin")
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.leading)
+                        }
+                        Spacer()
+                    }
+                    Spacer()
+                    HStack{
+                        VStack {
+                            Image(systemName: "clock.fill")
+                                .font(.system(size: 25))
+                                .foregroundStyle(.orange)
+                                .frame(width: 60, height: 60)
+                                .background(Color.orange.opacity(0.2))
+                                .clipShape(Circle())
+                                .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                                
+                            Text(numberToText(value: calcTime()))
+                                .font(.title2.bold())
+                                .foregroundColor(.orange)
+                                .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                            Text(pluriel(index: 3, value: calcTime()))
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                        }
+                        .frame(width: 140, height: 200)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 40))
+                        Spacer()
+                        VStack {
+                            Image("cards")
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundStyle(.orange)
+                                .padding(15)
+                                .frame(width: 60, height: 60)
+                                .background(Color.orange.opacity(0.2))
+                                .clipShape(Circle())
+                                .padding(.bottom, 5)
+                                
+                            Text(numberToText(value: miniDrawnCards))
+                                .font(.title2.bold())
+                                .foregroundColor(.orange)
+                                .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
+                            Text(pluriel(index: 2, value: miniDrawnCards))
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            
+                        }
+                        .frame(width: 140, height: 200)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 40))
+                    }
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.spring()) {
+                            isPlaying = false
+                        }
+                    }) {
+                        Text("Revenir à l'accueil")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.orange)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                    }
+                    
+                }
+                .padding(.init(top: 180, leading: 75, bottom: 180, trailing: 75))
+//                .frame(width: 350, height: 260)
+                .background(Color.black.opacity(0.7))
+//                .clipShape(RoundedRectangle(cornerRadius: 40))
+//                .padding(.init(top: 50, leading: 20, bottom: 50, trailing: 20))
             }
+        }
+        .onAppear() {
+            regenerateDeck(botPlaying: true)
+            regenerateDeck(botPlaying: false)
         }
         
 //        .alert("\(winnerName) a gagné !", isPresented: $showingWinAlert) {
@@ -318,7 +382,7 @@ struct ContentView: View {
                 botDeck.append(UnoCard(color: newColor, type: newType))
                 played = false
             } else {
-                drawnCards += 1
+                miniDrawnCards = miniDrawnCards + 1
                 userDeck.append(UnoCard(color: newColor, type: newType))
             }
         } else {
@@ -343,31 +407,32 @@ struct ContentView: View {
     
     //Le bot check ses cartes, joue ou pioche s'il ne peut rien jouer
     func botPlay () {
-        print("Bot : Je regarde chaque carte de mon jeu")
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(3))
-            
-            var validCards: [UnoCard] = []
-            for card in botDeck {
+        if !showingWinAlert {
+            Task { @MainActor in
+                try? await Task.sleep(for: .seconds(3))
                 
-                if isCardValid(type: card.type, color: card.color) {
-                    validCards.append(card)
-                    print("je peux jouer un \(card.type) \(card.color)")
+                var validCards: [UnoCard] = []
+                for card in botDeck {
+                    
+                    if isCardValid(type: card.type, color: card.color) {
+                        validCards.append(card)
+                        print("je peux jouer un \(card.type) \(card.color)")
+                    }
                 }
-            }
-            
-            if validCards.isEmpty {
-                print("je peux rien jouer je pioche")
-                piocher(botPlaying: true)
-                played = false
-            } else {
-                let botPlay = validCards.randomElement()!
-                print("j'ai joué un \(botPlay.type) \(botPlay.color)!'")
-                middleCard = botPlay
-                botDeck.removeAll { $0.id == botPlay.id }
-                if !isSpecialCard(type: botPlay.type, color: botPlay.color, player: "bot") {
-                    isWinning(cards: botDeck, player: "Bot")
+                
+                if validCards.isEmpty {
+                    print("je peux rien jouer je pioche")
+                    piocher(botPlaying: true)
                     played = false
+                } else {
+                    let botPlay = validCards.randomElement()!
+                    print("j'ai joué un \(botPlay.type) \(botPlay.color)!'")
+                    middleCard = botPlay
+                    botDeck.removeAll { $0.id == botPlay.id }
+                    if !isSpecialCard(type: botPlay.type, color: botPlay.color, player: "bot") {
+                        isWinning(cards: botDeck, player: "Bot")
+                        played = false
+                    }
                 }
             }
         }
@@ -387,7 +452,9 @@ struct ContentView: View {
         if (winner == pseudo) {
             victories += 1
         }
+        
         minutesPlayed += calcTime()
+        drawnCards = miniDrawnCards
         
         winnerName = winner
         showingWinAlert = true
@@ -451,18 +518,18 @@ struct ContentView: View {
         } else if type == "Q" {
             if player == "user" {
                 played = false
-                isWinning(cards: userDeck, player: player)
+                isWinning(cards: userDeck, player: pseudo)
                 print("Tour du bot skippé !")
             } else {
                 played = true
-                isWinning(cards: userDeck, player: player)
+                isWinning(cards: userDeck, player: pseudo)
                 print("Tour du joueur skippé !")
                 botPlay()
             }
             return true
         } else if type == "S" {
             plus(number: 2, toBot: player == "user" ? true : false)
-            isWinning(cards: userDeck, player: player)
+            isWinning(cards: userDeck, player: pseudo)
             played = player == "user" ? true : false
             if player == "user" {
                 botPlay()
@@ -484,7 +551,7 @@ struct ContentView: View {
     func selectedColor(colorSelected: Color = .blue) {
         showColorSelect = false
         played = true
-        isWinning(cards: userDeck, player: "user")
+        isWinning(cards: userDeck, player: pseudo)
         var newColor = "bleu"
         if colorSelected == .blue {
             newColor = "bleu"

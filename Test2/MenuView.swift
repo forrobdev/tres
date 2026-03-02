@@ -38,21 +38,19 @@ struct MenuView: View {
                                     .foregroundColor(.white)
                             }
                             Spacer()
-                            VStack(alignment: .leading){
-                                Text(whichHi())
-                                    .font(.subheadline)
-                                    .foregroundColor(.white)
-                                    .multilineTextAlignment(.leading)
-                                Text(pseudo)
-                                    .font(.system(size: 40, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .multilineTextAlignment(.leading)
+                            HStack{
+                                VStack(alignment: .leading){
+                                    Text(whichHi())
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                        .multilineTextAlignment(.leading)
+                                    Text(pseudo)
+                                        .font(.system(size: 40, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                Spacer()
                             }
-                            Spacer()
-                            Spacer()
-                            Spacer()
-                            Spacer()
-                            Spacer()
                         }
                         Spacer()
                         HStack{
@@ -328,42 +326,42 @@ func backgroundCard(level: Int) -> String {
     return newBackground
 }
 
-func pluriel(index: Int, value: Int) -> String {
-    var text: String = ""
-    
-    if (index == 1) {
-        if (value > 1) {
-            text = "parties jouées"
-        } else {
-            text = "partie jouée"
-        }
-    } else if (index == 2) {
-        if (value > 1) {
-            text = "cartes piochées"
-        } else {
-            text = "carte piochée"
-        }
-        
-    } else if (index == 3) {
-        if (value > 1) {
-            text = "minutes jouées"
-        } else {
-            text = "minute jouée"
-        }
-    }
-    
-    return text
-}
+//func pluriel(index: Int, value: Int) -> String {
+//    var text: String = ""
+//    
+//    if (index == 1) {
+//        if (value > 1) {
+//            text = "parties jouées"
+//        } else {
+//            text = "partie jouée"
+//        }
+//    } else if (index == 2) {
+//        if (value > 1) {
+//            text = "cartes piochées"
+//        } else {
+//            text = "carte piochée"
+//        }
+//        
+//    } else if (index == 3) {
+//        if (value > 1) {
+//            text = "minutes jouées"
+//        } else {
+//            text = "minute jouée"
+//        }
+//    }
+//    
+//    return text
+//}
 
-func numberToText(value: Int) -> String {
-    var text: String = "\(value)"
-    
-    if (value < 10) {
-        text = "0\(value)"
-    }
-    
-    return text
-}
+//func numberToText(value: Int) -> String {
+//    var text: String = "\(value)"
+//    
+//    if (value < 10) {
+//        text = "0\(value)"
+//    }
+//    
+//    return text
+//}
 
 func winPercent(wins: Int, gamesPlayed: Int) -> String {
     return "\(wins*100/gamesPlayed)%"

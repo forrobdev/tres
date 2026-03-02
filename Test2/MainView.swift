@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var isPlaying = false
+    
+    @State private var isPlaying = true
     @AppStorage("onBoarded") private var onBoarded = false
     
     var body: some View {
