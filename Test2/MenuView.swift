@@ -405,7 +405,7 @@ struct MenuView: View {
                     Spacer()
                     Button(action: {
                         withAnimation(.spring()) {
-                            pseudo = ""
+                            pseudo = "Robin"
                             level = 1
                             victories = 0
                             minutesPlayed = 0

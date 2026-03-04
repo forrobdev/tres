@@ -33,9 +33,13 @@ struct ContentView: View {
     @Binding var gamemode: Int
     
     @Namespace private var cardTransition
+
+    @State private var showErrorBanner = false
+    @State private var errorMessage: String = ""
+    
     @State private var userDeck: [card] = []
     @State private var botDeck: [card] = []
-    @State private var middleCard: card = card(type: "rouge", color: "zero")
+    @State private var middleCard: card = card(type: "zero", color: "rouge")
     @State private var played: Bool = false
     @State private var showColorSelect: Bool = false
     @State private var piocheBig: Bool = false
@@ -127,7 +131,7 @@ struct ContentView: View {
                         .onTapGesture {
                             isPlaying = false
                         }
-
+                    
                     Spacer()
                 }
                 //Cartes du bot
@@ -190,7 +194,7 @@ struct ContentView: View {
                         .animation(.bouncy(duration: 0.3), value: piocheBig)
                         .onTapGesture {
                             if played {
-                                print("Pas ton tour attends !")
+                                showError(message: "Veuillez attendre votre tour !")
                             } else {
                                 played = true
                                 piocher(botPlaying: false)
@@ -244,7 +248,7 @@ struct ContentView: View {
                                 .matchedGeometryEffect(id: card.id, in: cardTransition, isSource: true)
                                 .onTapGesture {
                                     if played {
-                                        print("Pas ton tour attends !")
+                                        showError(message: "Veuillez attendre votre tour !")
                                     } else {
                                         if isCardValid(type: card.type, color: card.color) {
                                             
@@ -259,7 +263,7 @@ struct ContentView: View {
                                                 isWinning(cards: userDeck, player: pseudo)
                                             }
                                         } else {
-                                            print("Pas valide essaye une autre")
+                                            showError(message: "Cette carte ne peut pas être posée au centre !")
                                         }
                                     }
                                 }
@@ -277,6 +281,31 @@ struct ContentView: View {
                     endPoint: .bottomTrailing
                 )
             )
+            
+            if showErrorBanner {
+                VStack{
+                    HStack(spacing: 10){
+                        Image(systemName: "info.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.black)
+//                            .frame(width: 60, height: 60)
+//                            .background(Color.orange.opacity(0.2))
+//                            .clipShape(Circle())
+                        Text(errorMessage)
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                            .multilineTextAlignment(.leading)
+                    }
+                    .padding(15)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+//                .transition(.move(edge: .top))
+//                .animation(.easeInOut, value: errorMessage)
+            }
+            
             if showingWinAlert {
                 VStack(){
                     HStack{
@@ -302,7 +331,7 @@ struct ContentView: View {
                                 .background(Color.orange.opacity(0.2))
                                 .clipShape(Circle())
                                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 5, trailing: 0))
-                                
+                            
                             Text(numberToText(value: calcTime()))
                                 .font(.title2.bold())
                                 .foregroundColor(.orange)
@@ -327,7 +356,7 @@ struct ContentView: View {
                                 .background(Color.orange.opacity(0.2))
                                 .clipShape(Circle())
                                 .padding(.bottom, 5)
-                                
+                            
                             Text(numberToText(value: miniDrawnCards))
                                 .font(.title2.bold())
                                 .foregroundColor(.orange)
@@ -358,39 +387,102 @@ struct ContentView: View {
                     
                 }
                 .padding(.init(top: 180, leading: 75, bottom: 180, trailing: 75))
-//                .frame(width: 350, height: 260)
+                //                .frame(width: 350, height: 260)
                 .background(Color.black.opacity(0.7))
-//                .clipShape(RoundedRectangle(cornerRadius: 40))
-//                .padding(.init(top: 50, leading: 20, bottom: 50, trailing: 20))
+                //                .clipShape(RoundedRectangle(cornerRadius: 40))
+                //                .padding(.init(top: 50, leading: 20, bottom: 50, trailing: 20))
             }
         }
         .onAppear() {
+            if (gamemode == 3) {
+                unoCards = [
+                    // Cartes bleues
+                    card(type: "zero", color: "bleu"),
+                    card(type: "un", color: "bleu"), card(type: "un", color: "bleu"),
+                    card(type: "deux", color: "bleu"), card(type: "deux", color: "bleu"),
+                    card(type: "trois", color: "bleu"), card(type: "trois", color: "bleu"),
+                    card(type: "quatre", color: "bleu"), card(type: "quatre", color: "bleu"),
+                    card(type: "cinq", color: "bleu"), card(type: "cinq", color: "bleu"),
+                    card(type: "six", color: "bleu"), card(type: "six", color: "bleu"),
+                    card(type: "sept", color: "bleu"), card(type: "sept", color: "bleu"),
+                    card(type: "huit", color: "bleu"), card(type: "huit", color: "bleu"),
+                    card(type: "neuf", color: "bleu"), card(type: "neuf", color: "bleu"),
+                    // Cartes spéciales bleues doublées
+                    card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"), card(type: "Q", color: "bleu"),
+                    card(type: "S", color: "bleu"), card(type: "S", color: "bleu"), card(type: "S", color: "bleu"), card(type: "S", color: "bleu"),
+                    
+                    // Cartes rouges
+                    card(type: "zero", color: "rouge"),
+                    card(type: "un", color: "rouge"), card(type: "un", color: "rouge"),
+                    card(type: "deux", color: "rouge"), card(type: "deux", color: "rouge"),
+                    card(type: "trois", color: "rouge"), card(type: "trois", color: "rouge"),
+                    card(type: "quatre", color: "rouge"), card(type: "quatre", color: "rouge"),
+                    card(type: "cinq", color: "rouge"), card(type: "cinq", color: "rouge"),
+                    card(type: "six", color: "rouge"), card(type: "six", color: "rouge"),
+                    card(type: "sept", color: "rouge"), card(type: "sept", color: "rouge"),
+                    card(type: "huit", color: "rouge"), card(type: "huit", color: "rouge"),
+                    card(type: "neuf", color: "rouge"), card(type: "neuf", color: "rouge"),
+                    // Cartes spéciales rouges doublées
+                    card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"), card(type: "Q", color: "rouge"),
+                    card(type: "S", color: "rouge"), card(type: "S", color: "rouge"), card(type: "S", color: "rouge"), card(type: "S", color: "rouge"),
+                    
+                    // Cartes jaunes
+                    card(type: "zero", color: "jaune"),
+                    card(type: "un", color: "jaune"), card(type: "un", color: "jaune"),
+                    card(type: "deux", color: "jaune"), card(type: "deux", color: "jaune"),
+                    card(type: "trois", color: "jaune"), card(type: "trois", color: "jaune"),
+                    card(type: "quatre", color: "jaune"), card(type: "quatre", color: "jaune"),
+                    card(type: "cinq", color: "jaune"), card(type: "cinq", color: "jaune"),
+                    card(type: "six", color: "jaune"), card(type: "six", color: "jaune"),
+                    card(type: "sept", color: "jaune"), card(type: "sept", color: "jaune"),
+                    card(type: "huit", color: "jaune"), card(type: "huit", color: "jaune"),
+                    card(type: "neuf", color: "jaune"), card(type: "neuf", color: "jaune"),
+                    // Cartes spéciales jaunes doublées
+                    card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"), card(type: "Q", color: "jaune"),
+                    card(type: "S", color: "jaune"), card(type: "S", color: "jaune"), card(type: "S", color: "jaune"), card(type: "S", color: "jaune"),
+                    
+                    // Cartes vertes
+                    card(type: "zero", color: "vert"),
+                    card(type: "un", color: "vert"), card(type: "un", color: "vert"),
+                    card(type: "deux", color: "vert"), card(type: "deux", color: "vert"),
+                    card(type: "trois", color: "vert"), card(type: "trois", color: "vert"),
+                    card(type: "quatre", color: "vert"), card(type: "quatre", color: "vert"),
+                    card(type: "cinq", color: "vert"), card(type: "cinq", color: "vert"),
+                    card(type: "six", color: "vert"), card(type: "six", color: "vert"),
+                    card(type: "sept", color: "vert"), card(type: "sept", color: "vert"),
+                    card(type: "huit", color: "vert"), card(type: "huit", color: "vert"),
+                    card(type: "neuf", color: "vert"), card(type: "neuf", color: "vert"),
+                    // Cartes spéciales vertes doublées
+                    card(type: "Q", color: "vert"), card(type: "Q", color: "vert"), card(type: "Q", color: "vert"), card(type: "Q", color: "vert"),
+                    card(type: "S", color: "vert"), card(type: "S", color: "vert"), card(type: "S", color: "vert"), card(type: "S", color: "vert"),
+                    
+                    // Cartes noires doublées
+                    card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+                    card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"), card(type: "J", color: "noir"),
+                    
+                    card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"),
+                    card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2"), card(type: "K", color: "noir2")
+                ]
+            }
             regenerateDeck(botPlaying: true)
             regenerateDeck(botPlaying: false)
         }
-        
-//        .alert("\(winnerName) a gagné !", isPresented: $showingWinAlert) {
-//            Button("Rejouer") {
-//                resetGame()
-//            }
-//            Button("Retour au menu") {
-//                isPlaying = false
-//            }
-//        } message: {
-//            Text("Quelle partie endiablée !")
-//        }
     }
-    
-//    //Gérer la taille d'un numéro sur une carte
-//    func rightSize(type: String = "deux") -> CGFloat {
-//        if type == "S" || type == "Q" {
-//            return 55
-//        } else if type == "un" {
-//            return 18
-//        } else {
-//            return 30
-//        }
-//    }
+        
+    //Afficher une erreur
+    func showError(message: String) {
+        errorMessage = message
+        
+        withAnimation(.easeInOut) {
+            showErrorBanner = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.easeInOut) {
+                showErrorBanner = false
+            }
+        }
+    }
     
     //Piocher une carte pour un joueur
     func piocher(botPlaying: Bool = false) {

@@ -22,6 +22,14 @@ struct OnboardingView: View {
             VStack(alignment: .leading) {
                 Spacer()
                 Spacer()
+                HStack{
+                    Spacer()
+                    Image("screen1")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 240, height: 400)
+                    Spacer()
+                }
                 Text("Bienvenue sur Tres")
                     .font(.largeTitle.bold())
                     .foregroundColor(.white)
@@ -53,6 +61,14 @@ struct OnboardingView: View {
             VStack(alignment: .leading) {
                 Spacer()
                 Spacer()
+                HStack{
+                    Spacer()
+                    Image("screen2")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 240, height: 400)
+                    Spacer()
+                }
                 Text("Les règles du jeu")
                     .font(.largeTitle.bold())
                     .foregroundColor(.white)
